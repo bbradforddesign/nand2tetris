@@ -1,0 +1,93 @@
+16-bit instruction breakdown
+
+C-Instruction: 
+
+1xxa cccc ccdd djjj
+
+1-3 = jump
+4-6 = dest
+7-13 = comp
+16 = C-Instruction
+
+Comp: the function we want to perform. 
+a cccc cc
+a = computed function
+c1-6 = comp field
+Ref 4.3 in chap 4 for table
+
+Dest: where to store computed value. 
+ddd
+d1 = store in A
+d2 = store in D
+d3 = store in M
+
+Jump: what to do next. comparison functions.
+j1 = jump if neg
+j2 = jump if zero
+j3 = jump if pos
+
+
+Example: 
+1xx1 1101 1101 1000 = 
+ c[1 1101 11] d[011] j[000] = 
+ c[M+1] d[D&M] j[no jump]
+
+Roadmap: 
+15 = A or C
+
+15 == 1 :
+14-13 = ignore
+12-6 = ALU command
+5-3 = register to store output
+2-0 = PC related
+
+15 == 0 :
+14-0 = val to load into A-register
+
+
+
+A-Instruction:
+1-15 = address
+16 = A-Instruction
+
+
+J-Instruction:
+8 possible cases. Perfect for Or8Way?
+
+0 = null = 000
+1 = JGT = 001
+2 = JEQ = 010
+3 = JGE = 011
+4 = JLT = 100
+5 = JNE = 101
+6 = JLE = 110
+7 = JMP = 111
+
+possibilities: 
+not caseNeg & not caseZero = JGT, JNE => deciding: [x01]
+not caseNeg & caseZero = JEQ, JGE => deciding: [01x]
+caseNeg & not caseZero = JLT, JNE => deciding: [10x]
+caseNeg & caseZero = JLE
+
+
+
+
+// which possible cases should be true? 
+DMux4Way(in=true,sel=[caseNeg,caseZero],a=JgtJne,b=JeqJge,c=JltJne,d=Jle)
+
+// select which case to evaluate. if true, check with output from ALU
+DMux8Way(in= true, sel[2]=instruction[2],sel[1]=instruction[1],sel[0]=instruction[0], 
+a=null,b=jgt, etc);
+
+// given a case, does output also equal true?
+result0=false, assume we want to never jump
+And(a=JgtJne,b=jgt,out=result1)
+And(a=JeqJge,b=jeq,out=result2)
+...
+Or(a=false,b=jmp,out=result7
+
+8-bit array of possible jumps looks like
+[false,result1...result7]
+
+Or8Way(in[0]=result7,in[1]=result6.....in[7]=false,out=caseJump);
+

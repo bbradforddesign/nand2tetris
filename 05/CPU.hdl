@@ -1,0 +1,95 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+
+	// Instruction switch (A or C?)
+	// Need to negate last bit to trigger store in register
+	Not(in=instruction[15],out=ASwitch);
+	Mux16(a=ALUOut,b=instruction,sel=ASwitch,out=AorC);
+	
+	// A register, loads based on first bit of dest in c-instruction
+	Or(a=ASwitch,b=instruction[5],out=shouldA);
+	ARegister(in=AorC,load=shouldA,out=RegA,out[0..14]=addressM);
+	
+	// Switch for ALU input (M or A)
+	// if C instruction, read a-bit
+	And(a=instruction[15],b=instruction[12],out=shouldAM);
+	Mux16(a=RegA,b=inM,sel=shouldAM,out=MorA);
+
+	// D register, loads based on second dest bit
+	// if C instruction, read d2 bit
+	And(a=instruction[15],b=instruction[4],out=shouldD);
+	DRegister(in=ALUOut,load=shouldD,out=RegD);
+
+	// ALU, include control bit parsing
+	ALU(x=RegD,y=MorA,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=ALUOut,out=outM,zr=caseZero,ng=caseNeg);
+
+	// WriteM
+	// if C instruction, read d3 bit
+	And(a=instruction[15],b=instruction[3],out=writeM);
+
+	// TODO:
+	// write jump logic. ie if any of jump conditions are met, set load on pc to true
+
+
+	Not(in=caseNeg,out=Pos); // flag for positive output
+	Not(in=caseZero,out=NotZero);
+
+	And(a=instruction[15],b=instruction[0],out=JGT); // jump if positive
+	And(a=Pos,b=NotZero,out=Greater); // true if ALU output is positive non-zero int
+	And(a=JGT,b=Greater,out=PosCheck); // if positive, and should jump if positive, mark true
+
+	And(a=instruction[15],b=instruction[1],out=JEQ);
+	And(a=caseZero,b=JEQ,out=ZerCheck); // if ALU outputs zero, and should jump if zero, mark true
+
+	And(a=instruction[15],b=instruction[2],out=JLT);
+	// no need for zero check, since zero can't be negative on ALU output
+	And(a=caseNeg,b=JLT,out=NegCheck); // if ALU outputs negative, and should jump if negative, mark true
+	
+	Or(a=PosCheck,b=ZerCheck,out=PosOrZer);
+	Or(a=PosOrZer,b=NegCheck,out=caseJump); // if any checked conditions are true, jump
+
+	
+	
+
+	PC(in=RegA,load=caseJump,inc=true,reset=reset,out[0..14]=pc);
+}
