@@ -99,7 +99,7 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
 @LT_3
 D;JLT
@@ -113,10 +113,8 @@ D=-1
 D=0
 (STORE_3)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // lt
+A=M-1
+M=D // lt
 @891
 D=A
 @SP
@@ -134,7 +132,7 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
 @LT_4
 D;JLT
@@ -148,10 +146,8 @@ D=-1
 D=0
 (STORE_4)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // lt
+A=M-1
+M=D // lt
 @891
 D=A
 @SP
@@ -169,7 +165,7 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
 @LT_5
 D;JLT
@@ -183,10 +179,8 @@ D=-1
 D=0
 (STORE_5)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // lt
+A=M-1
+M=D // lt
 @32767
 D=A
 @SP
@@ -204,24 +198,22 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
-@LT_6
-D;JLT
 @GT_6
-0;JMP
-(LT_6)
-D=0
-@STORE_6
+D;JGT
+@LT_6
 0;JMP
 (GT_6)
 D=-1
+@STORE_6
+0;JMP
+(LT_6)
+D=0
 (STORE_6)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // gt
+A=M-1
+M=D // gt
 @32766
 D=A
 @SP
@@ -239,24 +231,22 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
-@LT_7
-D;JLT
 @GT_7
-0;JMP
-(LT_7)
-D=0
-@STORE_7
+D;JGT
+@LT_7
 0;JMP
 (GT_7)
 D=-1
+@STORE_7
+0;JMP
+(LT_7)
+D=0
 (STORE_7)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // gt
+A=M-1
+M=D // gt
 @32766
 D=A
 @SP
@@ -274,24 +264,22 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=M-D
-@LT_8
-D;JLT
 @GT_8
-0;JMP
-(LT_8)
-D=0
-@STORE_8
+D;JGT
+@LT_8
 0;JMP
 (GT_8)
 D=-1
+@STORE_8
+0;JMP
+(LT_8)
+D=0
 (STORE_8)
 @SP
-A=M
-M=D
-@SP
-M=M+1 // gt
+A=M-1
+M=D // gt
 @57
 D=A
 @SP
@@ -315,8 +303,7 @@ M=M-1
 A=M
 D=M
 @SP
-M=M-1
-A=M
+A=M-1
 M=M+D // add
 @112
 D=A
@@ -324,9 +311,47 @@ D=A
 M=M+1
 A=M-1
 M=D // push constant 112
+@SP
+M=M-1
+A=M
+D=M
+@SP
+A=M-1
+M=M-D // sub
+@SP
+M=M-1
+A=M
+D=M
+M=-D
+@SP
+M=M+1 // neg
+@SP
+M=M-1
+A=M
+D=M
+@SP
+A=M-1
+M=D&M // and
 @82
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 82
+@SP
+M=M-1
+A=M
+D=M
+@SP
+A=M-1
+M=D|M // or
+@SP
+M=M-1
+A=M
+D=M
+M=!D
+@SP
+M=M+1 // not
+(END)
+@END
+0;JMP

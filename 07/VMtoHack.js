@@ -66,7 +66,6 @@ const C_PUSH = (num) => {
     "A=M-1",
     "M=D",
   ];
-
   return block.join("\n");
 };
 
@@ -83,102 +82,140 @@ const C_POP = () => {
   return block.join("\n");
 };
 
-// stack arithmetic methods
+// stack arithmetic methods.
+// utilizes top (y) and second from top (x) stack items.
+// comparisons yield true (-1) or false (0)
 
-// add top two stack elements together
-const Add = () => {
-  let block = [C_POP(), "@SP", "M=M-1", "A=M", "M=M+D"];
-
-  return block.join("\n");
-};
-
-// check equality of top two stack elements
-const Eq = () => {
-  let block = [
-    C_POP(),
-    "@SP",
-    "AM=M-1",
-    "D=D-M",
-    /**
-     * desired behavior
-     *
-     * if D !== 0 push 0
-     * else push -1
-     *
-     */
-    `@EQ_${varCount}`,
-    "D;JEQ",
-    "D=1",
-    `(EQ_${varCount})`,
-    "@SP",
-    "A=M",
-    "M=D-1",
-    "@SP",
-    "M=M+1",
-  ];
-  varCount++;
-  return block.join("\n");
-};
-
-const Lt = () => {
-  let block = [
-    C_POP(),
-    "@SP",
-    "AM=M-1",
-    "D=M-D",
-    `@LT_${varCount}`,
-    "D;JLT",
-    `@GT_${varCount}`,
-    "0;JMP",
-    `(LT_${varCount})`,
-    "D=-1",
-    `@STORE_${varCount}`,
-    "0;JMP",
-    `(GT_${varCount})`,
-    "D=0",
-    `(STORE_${varCount})`,
-    "@SP",
-    "A=M",
-    "M=D",
-    "@SP",
-    "M=M+1",
-  ];
-  varCount++;
-  return block.join("\n");
-};
-
-const Gt = () => {
-  let block = [
-    C_POP(),
-    "@SP",
-    "AM=M-1",
-    "D=M-D",
-    `@LT_${varCount}`,
-    "D;JLT",
-    `@GT_${varCount}`,
-    "0;JMP",
-    `(LT_${varCount})`,
-    "D=0",
-    `@STORE_${varCount}`,
-    "0;JMP",
-    `(GT_${varCount})`,
-    "D=-1",
-    `(STORE_${varCount})`,
-    "@SP",
-    "A=M",
-    "M=D",
-    "@SP",
-    "M=M+1",
-  ];
-  varCount++;
-  return block.join("\n");
-};
-
+// TODO: possible optimization is to 
+// only declare one gt,lt,eq comparison, and call them as functions.
+// would be less lines, but slower?
 const C_ARITHMETIC = {
-  ADD: () => Add(),
-  EQ: () => Eq(),
-  LT: () => Lt(),
-  GT: () => Gt(),
+  // x + y
+  ADD: () => {
+    let block = [C_POP(), "@SP", "A=M-1", "M=M+D"];
+  
+    return block.join("\n");
+  },
+  // x - y
+  SUB: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "A=M-1",
+      "M=M-D"
+    ]
+    return block.join('\n')
+  },
+  // x == y ?
+  EQ: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "AM=M-1",
+      "D=D-M",
+      `@EQ_${varCount}`,
+      "D;JEQ",
+      "D=1",
+      `(EQ_${varCount})`,
+      "@SP",
+      "A=M",
+      "M=D-1",
+      "@SP",
+      "M=M+1",
+    ];
+    varCount++;
+    return block.join("\n");
+  },
+  // x < y ?
+  LT: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "A=M-1",
+      "D=M-D",
+      `@LT_${varCount}`,
+      "D;JLT",
+      `@GT_${varCount}`,
+      "0;JMP",
+      `(LT_${varCount})`,
+      "D=-1",
+      `@STORE_${varCount}`,
+      "0;JMP",
+      `(GT_${varCount})`,
+      "D=0",
+      `(STORE_${varCount})`,
+      "@SP",
+      "A=M-1",
+      "M=D",
+    ];
+    varCount++;
+    return block.join("\n");
+  },
+  // x > y ?
+  GT: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "A=M-1",
+      "D=M-D",
+      `@GT_${varCount}`,
+      "D;JGT",
+      `@LT_${varCount}`,
+      "0;JMP",
+      `(GT_${varCount})`,
+      "D=-1",
+      `@STORE_${varCount}`,
+      "0;JMP",
+      `(LT_${varCount})`,
+      "D=0",
+      `(STORE_${varCount})`,
+      "@SP",
+      "A=M-1",
+      "M=D",
+    ];
+    varCount++;
+    return block.join("\n");
+  },
+  // -y
+  NEG: () => {
+    let block = [
+      C_POP(),
+      "M=-D",
+      "@SP",
+      "M=M+1"
+    ];
+    return block.join("\n")
+  },
+  // x & y
+  AND: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "A=M-1",
+      "M=D&M"
+    ];
+    return block.join("\n")
+  },
+  // x | y
+  OR: () => {
+    let block = [
+      C_POP(),
+      "@SP",
+      "A=M-1",
+      "M=D|M"
+    ]
+    return block.join("\n")
+  },
+  // !y
+  NOT: () => {
+    let block = [
+      C_POP(),
+      "M=!D",
+      "@SP",
+      "M=M+1"
+    ]
+    return block.join('\n')
+  }
 };
 
 // command type table
@@ -189,6 +226,11 @@ const CommandType = {
   eq: () => C_ARITHMETIC.EQ(),
   lt: () => C_ARITHMETIC.LT(),
   gt: () => C_ARITHMETIC.GT(),
+  sub: () => C_ARITHMETIC.SUB(),
+  neg: () => C_ARITHMETIC.NEG(),
+  and: () => C_ARITHMETIC.AND(),
+  or: () => C_ARITHMETIC.OR(),
+  not: () => C_ARITHMETIC.NOT(),
   C_LABEL: "",
   C_GOTO: "",
   C_IF: "",
@@ -196,6 +238,13 @@ const CommandType = {
   C_RETURN: "",
   C_CALL: "",
 };
+
+// end loop
+const EndLoop = [
+  "(END)",
+  "@END",
+  "0;JMP"
+]
 
 // parse input file to perform basic stack arithmetic
 const Parse = (fileAddress) => {
@@ -215,6 +264,7 @@ const Parse = (fileAddress) => {
 
   // afterwards, perform callback:
   rl.on("close", () => {
+    WriteLine(EndLoop.join('\n'))
     console.log("done");
   });
 };
