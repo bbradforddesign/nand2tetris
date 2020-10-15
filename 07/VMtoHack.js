@@ -54,33 +54,105 @@ const WriteLine = (line) => {
 // that the given line address isn't overwritten
 let varCount = 0;
 
+
+// RAM addresses
+const Segments = {
+  // pointer to next topmost location
+  sp: 'SP',
+  // pointer to base of current function's local
+  local: 'LCL',
+  // base of function's argument segment
+  argument: 'ARG',
+  // base of current this segment
+  this: 'THIS',
+  // base of current that segment
+  that: 'THAT',
+  // base of temp segment
+  temp: 'TEMP'
+}
+
 // store element at top of stack
-const C_PUSH = (num) => {
-  let block = [
-    // get num's val
+const C_PUSH = (seg,num) => {
+  let block = []
+  let source = Segments[seg]
+  if (source) {
+    if (source === 'TEMP') {
+      source = 5 + parseInt(num);
+      block.push(
+        // go directly to pointer to retrieve val
+        `@${source}`,
+        "D=M"
+      )
+    } else { 
+      block.push(
+      // get val to push from source at line
+      `@${num}`,
+      "D=A",
+      `@${source}`,
+      "A=D+M",
+      "D=M",
+    )
+      }
+  } else {
+    // assume segment == constant in other cases
+    block.push(
+      // get constant num val
     `@${num}`,
     "D=A",
+    )
+  }
+  // store the retrieved val on top of stack
+  block.push(
     // go to top of stack, and store num
     "@SP",
     "M=M+1",
     "A=M-1",
     "M=D",
-  ];
+  )
   return block.join("\n");
 };
 
 // remove & return top element from stack
-const C_POP = () => {
-  let block = [
+const C_POP = (seg,num) => {
+  let block = []
+  let dest = Segments[seg]
+  if (dest === 'TEMP') {
+    dest = 5 + parseInt(num);
+    block.push(
     // retrieve top element
     "@SP",
     "M=M-1",
     "A=M",
     "D=M",
-  ];
+    // move it to target segment
+    `@${dest}`,
+    'M=D'
+    )
+  }
+  else {
+    block.push(
+      // get destination value and store for later access
+    `@${num}`,
+    "D=A",
+    `@${dest}`,
+    'D=D+M',
+    '@13',
+    "M=D",
+    // retrieve top element
+    "@SP",
+    "M=M-1",
+    "A=M",
+    "D=M",
+    // move it to target segment
+    '@13',
+    'A=M',
+    'M=D'
+    )
+  }
 
   return block.join("\n");
 };
+
 
 // stack arithmetic methods.
 // utilizes top (y) and second from top (x) stack items.
@@ -92,14 +164,24 @@ const C_POP = () => {
 const C_ARITHMETIC = {
   // x + y
   ADD: () => {
-    let block = [C_POP(), "@SP", "A=M-1", "M=M+D"];
-  
+    let block = [
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M", 
+      "@SP", 
+      "A=M-1", 
+      "M=M+D"
+    ]
     return block.join("\n");
   },
   // x - y
   SUB: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "A=M-1",
       "M=M-D"
@@ -109,7 +191,10 @@ const C_ARITHMETIC = {
   // x == y ?
   EQ: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "AM=M-1",
       "D=D-M",
@@ -129,7 +214,10 @@ const C_ARITHMETIC = {
   // x < y ?
   LT: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "A=M-1",
       "D=M-D",
@@ -154,7 +242,10 @@ const C_ARITHMETIC = {
   // x > y ?
   GT: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "A=M-1",
       "D=M-D",
@@ -179,7 +270,10 @@ const C_ARITHMETIC = {
   // -y
   NEG: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "M=-D",
       "@SP",
       "M=M+1"
@@ -189,7 +283,10 @@ const C_ARITHMETIC = {
   // x & y
   AND: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "A=M-1",
       "M=D&M"
@@ -199,7 +296,10 @@ const C_ARITHMETIC = {
   // x | y
   OR: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "@SP",
       "A=M-1",
       "M=D|M"
@@ -209,7 +309,10 @@ const C_ARITHMETIC = {
   // !y
   NOT: () => {
     let block = [
-      C_POP(),
+      "@SP",
+      "M=M-1",
+      "A=M",
+      "D=M",
       "M=!D",
       "@SP",
       "M=M+1"
@@ -221,8 +324,8 @@ const C_ARITHMETIC = {
 // command type table
 const CommandType = {
   add: () => C_ARITHMETIC.ADD(),
-  push: (num) => C_PUSH(num),
-  pop: () => C_POP(),
+  push: (segment,num) => C_PUSH(segment,num),
+  pop: (segment,num) => C_POP(segment,num),
   eq: () => C_ARITHMETIC.EQ(),
   lt: () => C_ARITHMETIC.LT(),
   gt: () => C_ARITHMETIC.GT(),
@@ -252,13 +355,25 @@ const Parse = (fileAddress) => {
   resetOutput();
   // open file
   const rl = OpenFile(fileAddress);
+
   rl.on("line", (line) => {
     const Cleaned = CleanLine(line);
     const NoSpace = Cleaned.trim();
     const Split = NoSpace.split(/[ ]+/);
+    
+    // determine which segment to access on push
+    let action = Split[0]
     // if push command, add target val to stack
-    if (CommandType[Split[0]]) {
-      WriteLine(`${CommandType[Split[0]](Split[2])} // ${line}`);
+    if (CommandType[action]) {
+      let segment = Split[1];
+        let value = Split[2];
+      if (segment || value){
+        // assume push or pop method if segment and value supplied
+        WriteLine(`${CommandType[action](segment,value)} // ${line}`);
+      } else {
+        // all others just need the stack, so no segment or value
+        WriteLine(`${CommandType[action]()} // ${line}`);
+      }
     }
   });
 
