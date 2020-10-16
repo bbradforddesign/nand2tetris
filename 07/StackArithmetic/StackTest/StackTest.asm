@@ -15,17 +15,15 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=D-M
 @EQ_0
 D;JEQ
 D=1
 (EQ_0)
 @SP
-A=M
-M=D-1
-@SP
-M=M+1 // eq
+A=M-1
+M=D-1 // eq
 @17
 D=A
 @SP
@@ -43,17 +41,15 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=D-M
 @EQ_1
 D;JEQ
 D=1
 (EQ_1)
 @SP
-A=M
-M=D-1
-@SP
-M=M+1 // eq
+A=M-1
+M=D-1 // eq
 @16
 D=A
 @SP
@@ -71,17 +67,15 @@ M=M-1
 A=M
 D=M
 @SP
-AM=M-1
+A=M-1
 D=D-M
 @EQ_2
 D;JEQ
 D=1
 (EQ_2)
 @SP
-A=M
-M=D-1
-@SP
-M=M+1 // eq
+A=M-1
+M=D-1 // eq
 @892
 D=A
 @SP
@@ -200,15 +194,15 @@ D=M
 @SP
 A=M-1
 D=M-D
-@GT_6
-D;JGT
 @LT_6
+D;JGT
+@GT_6
 0;JMP
-(GT_6)
+(LT_6)
 D=-1
 @STORE_6
 0;JMP
-(LT_6)
+(GT_6)
 D=0
 (STORE_6)
 @SP
@@ -233,15 +227,15 @@ D=M
 @SP
 A=M-1
 D=M-D
-@GT_7
-D;JGT
 @LT_7
+D;JGT
+@GT_7
 0;JMP
-(GT_7)
+(LT_7)
 D=-1
 @STORE_7
 0;JMP
-(LT_7)
+(GT_7)
 D=0
 (STORE_7)
 @SP
@@ -266,15 +260,15 @@ D=M
 @SP
 A=M-1
 D=M-D
-@GT_8
-D;JGT
 @LT_8
+D;JGT
+@GT_8
 0;JMP
-(GT_8)
+(LT_8)
 D=-1
 @STORE_8
 0;JMP
-(LT_8)
+(GT_8)
 D=0
 (STORE_8)
 @SP
