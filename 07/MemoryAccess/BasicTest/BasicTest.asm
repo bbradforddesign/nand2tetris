@@ -179,26 +179,6 @@ AM=M-1
 D=M
 @SP
 A=M-1
-D=M-D
-@LT_0
-D;JGT
-@GT_0
-0;JMP
-(LT_0)
-D=-1
-@STORE_0
-0;JMP
-(GT_0)
-D=0
-(STORE_0)
-@SP
-A=M-1
-M=D // gt
-@SP
-AM=M-1
-D=M
-@SP
-A=M-1
 M=M+D // add
 @SP
 AM=M-1

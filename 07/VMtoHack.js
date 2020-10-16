@@ -70,7 +70,11 @@ const Segments = {
   // base of temp segment
   temp: 5,
   // base of pointer segment
-  pointer: 3
+  pointer: 3,
+  // base of static segment.
+  // different than book's implementation, but 
+  // does same thing.
+  static: 16
 }
 
 // assembly code presets for readability
@@ -110,9 +114,9 @@ const C_PUSH = (seg,num) => {
   let block = []
   let source = Segments[seg]
   if (source) {
-    if (seg === 'pointer' || seg === 'temp') {
+    if (typeof(source) === 'number') {
       block.push(
-        // go to line directly since 'TEMP' doesn't have a pointer
+        // go to line directly since Temp, Pointer, and Static all are not preset by script.
         `@${source + parseInt(num)}`,
         "D=M"
       )
@@ -146,7 +150,7 @@ const C_PUSH = (seg,num) => {
 const C_POP = (seg,num) => {
   let block = []
   let dest = Segments[seg]
-  if (seg === 'pointer' || seg === 'temp') {
+  if (typeof(dest) === 'number') {
     block.push(
     // retrieve top element
     ...Macros.getTop,
@@ -154,8 +158,7 @@ const C_POP = (seg,num) => {
     `@${dest + parseInt(num)}`,
     'M=D'
     )
-  }
-  else {
+  } else {
     block.push(
       // get destination value and store for later access
     `@${num}`,
