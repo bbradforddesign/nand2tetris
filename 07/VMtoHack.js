@@ -68,7 +68,37 @@ const Segments = {
   // base of current that segment
   that: 'THAT',
   // base of temp segment
-  temp: 'TEMP'
+  temp: 5
+}
+
+// assembly code presets for readability
+const Macros = {
+  getTop: ["@SP",
+  "M=M-1",
+  "A=M",
+  "D=M",],
+  putTop: ["@SP",
+  "M=M+1",
+  "A=M-1",
+  "M=D",],
+  gotoTop: ["@SP", 
+  "A=M-1", ],
+  compare: (comparison, iterator) => {
+    return [
+      "D=M-D",
+      `@LT_${iterator}`,
+      `D;${comparison}`,
+      `@GT_${iterator}`,
+      "0;JMP",
+      `(LT_${iterator})`,
+      "D=-1",
+      `@STORE_${iterator}`,
+      "0;JMP",
+      `(GT_${iterator})`,
+      "D=0",
+      `(STORE_${iterator})`,
+    ]
+  }
 }
 
 // store element at top of stack
@@ -76,11 +106,10 @@ const C_PUSH = (seg,num) => {
   let block = []
   let source = Segments[seg]
   if (source) {
-    if (source === 'TEMP') {
-      source = 5 + parseInt(num);
+    if (source === 5) {
       block.push(
-        // go directly to pointer to retrieve val
-        `@${source}`,
+        // go to line directly since 'TEMP' doesn't have a pointer
+        `@${source + parseInt(num)}`,
         "D=M"
       )
     } else { 
@@ -104,10 +133,7 @@ const C_PUSH = (seg,num) => {
   // store the retrieved val on top of stack
   block.push(
     // go to top of stack, and store num
-    "@SP",
-    "M=M+1",
-    "A=M-1",
-    "M=D",
+    ...Macros.putTop
   )
   return block.join("\n");
 };
@@ -120,10 +146,7 @@ const C_POP = (seg,num) => {
     dest = 5 + parseInt(num);
     block.push(
     // retrieve top element
-    "@SP",
-    "M=M-1",
-    "A=M",
-    "D=M",
+    ...Macros.getTop
     // move it to target segment
     `@${dest}`,
     'M=D'
@@ -139,10 +162,7 @@ const C_POP = (seg,num) => {
     '@13',
     "M=D",
     // retrieve top element
-    "@SP",
-    "M=M-1",
-    "A=M",
-    "D=M",
+    ...Macros.getTop,
     // move it to target segment
     '@13',
     'A=M',
@@ -165,12 +185,8 @@ const C_ARITHMETIC = {
   // x + y
   ADD: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M", 
-      "@SP", 
-      "A=M-1", 
+      ...Macros.getTop,
+      ...Macros.gotoTop, 
       "M=M+D"
     ]
     return block.join("\n");
@@ -178,12 +194,8 @@ const C_ARITHMETIC = {
   // x - y
   SUB: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "A=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
       "M=M-D"
     ]
     return block.join('\n')
@@ -191,22 +203,15 @@ const C_ARITHMETIC = {
   // x == y ?
   EQ: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "AM=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
       "D=D-M",
       `@EQ_${varCount}`,
       "D;JEQ",
       "D=1",
       `(EQ_${varCount})`,
-      "@SP",
-      "A=M",
+      ...Macros.gotoTop,
       "M=D-1",
-      "@SP",
-      "M=M+1",
     ];
     varCount++;
     return block.join("\n");
@@ -214,26 +219,10 @@ const C_ARITHMETIC = {
   // x < y ?
   LT: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "A=M-1",
-      "D=M-D",
-      `@LT_${varCount}`,
-      "D;JLT",
-      `@GT_${varCount}`,
-      "0;JMP",
-      `(LT_${varCount})`,
-      "D=-1",
-      `@STORE_${varCount}`,
-      "0;JMP",
-      `(GT_${varCount})`,
-      "D=0",
-      `(STORE_${varCount})`,
-      "@SP",
-      "A=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
+      ...Macros.compare('JLT',varCount),
+      ...Macros.gotoTop,
       "M=D",
     ];
     varCount++;
@@ -242,26 +231,10 @@ const C_ARITHMETIC = {
   // x > y ?
   GT: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "A=M-1",
-      "D=M-D",
-      `@GT_${varCount}`,
-      "D;JGT",
-      `@LT_${varCount}`,
-      "0;JMP",
-      `(GT_${varCount})`,
-      "D=-1",
-      `@STORE_${varCount}`,
-      "0;JMP",
-      `(LT_${varCount})`,
-      "D=0",
-      `(STORE_${varCount})`,
-      "@SP",
-      "A=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
+      ...Macros.compare('JGT',varCount),
+      ...Macros.gotoTop,
       "M=D",
     ];
     varCount++;
@@ -270,10 +243,7 @@ const C_ARITHMETIC = {
   // -y
   NEG: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
+      ...Macros.getTop,
       "M=-D",
       "@SP",
       "M=M+1"
@@ -283,12 +253,8 @@ const C_ARITHMETIC = {
   // x & y
   AND: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "A=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
       "M=D&M"
     ];
     return block.join("\n")
@@ -296,12 +262,8 @@ const C_ARITHMETIC = {
   // x | y
   OR: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
-      "@SP",
-      "A=M-1",
+      ...Macros.getTop,
+      ...Macros.gotoTop,
       "M=D|M"
     ]
     return block.join("\n")
@@ -309,10 +271,7 @@ const C_ARITHMETIC = {
   // !y
   NOT: () => {
     let block = [
-      "@SP",
-      "M=M-1",
-      "A=M",
-      "D=M",
+      ...Macros.getTop,
       "M=!D",
       "@SP",
       "M=M+1"
