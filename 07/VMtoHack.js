@@ -74,8 +74,7 @@ const Segments = {
 // assembly code presets for readability
 const Macros = {
   getTop: ["@SP",
-  "M=M-1",
-  "A=M",
+  "AM=M-1",
   "D=M",],
   putTop: ["@SP",
   "M=M+1",
@@ -83,6 +82,9 @@ const Macros = {
   "M=D",],
   gotoTop: ["@SP", 
   "A=M-1", ],
+  terminate: ["(END)",
+  "@END",
+  "0;JMP"],
   compare: (comparison, iterator) => {
     return [
       "D=M-D",
@@ -142,13 +144,12 @@ const C_PUSH = (seg,num) => {
 const C_POP = (seg,num) => {
   let block = []
   let dest = Segments[seg]
-  if (dest === 'TEMP') {
-    dest = 5 + parseInt(num);
+  if (dest === 5) {
     block.push(
     // retrieve top element
-    ...Macros.getTop
+    ...Macros.getTop,
     // move it to target segment
-    `@${dest}`,
+    `@${dest + parseInt(num)}`,
     'M=D'
     )
   }
@@ -222,7 +223,7 @@ const C_ARITHMETIC = {
       ...Macros.getTop,
       ...Macros.gotoTop,
       ...Macros.compare('JLT',varCount),
-      ...Macros.gotoTop,
+      ...Macros.gotoTop,,
       "M=D",
     ];
     varCount++;
@@ -301,12 +302,6 @@ const CommandType = {
   C_CALL: "",
 };
 
-// end loop
-const EndLoop = [
-  "(END)",
-  "@END",
-  "0;JMP"
-]
 
 // parse input file to perform basic stack arithmetic
 const Parse = (fileAddress) => {
@@ -338,7 +333,7 @@ const Parse = (fileAddress) => {
 
   // afterwards, perform callback:
   rl.on("close", () => {
-    WriteLine(EndLoop.join('\n'))
+    WriteLine(Macros.terminate.join('\n'))
     console.log("done");
   });
 };
