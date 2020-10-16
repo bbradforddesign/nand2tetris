@@ -68,7 +68,9 @@ const Segments = {
   // base of current that segment
   that: 'THAT',
   // base of temp segment
-  temp: 5
+  temp: 5,
+  // base of pointer segment
+  pointer: 3
 }
 
 // assembly code presets for readability
@@ -108,7 +110,7 @@ const C_PUSH = (seg,num) => {
   let block = []
   let source = Segments[seg]
   if (source) {
-    if (source === 5) {
+    if (seg === 'pointer' || seg === 'temp') {
       block.push(
         // go to line directly since 'TEMP' doesn't have a pointer
         `@${source + parseInt(num)}`,
@@ -144,7 +146,7 @@ const C_PUSH = (seg,num) => {
 const C_POP = (seg,num) => {
   let block = []
   let dest = Segments[seg]
-  if (dest === 5) {
+  if (seg === 'pointer' || seg === 'temp') {
     block.push(
     // retrieve top element
     ...Macros.getTop,
