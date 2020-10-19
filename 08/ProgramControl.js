@@ -30,4 +30,55 @@ module.exports = {
 
     return block.join("\n");
   },
+
+  // declare function of x variables
+  C_FUNCTION: (funcName, varCount) => {
+    // create label funcName
+    let block = [`(_${funcName})`];
+    // push 0 varCount times
+    let push0 = ["@0", "D=A", ...Macros.putTop];
+    for (let i = 0; i < varCount; i++) {
+      block.push(...push0);
+    }
+
+    return block.join("\n");
+  },
+
+  // return from a function
+  C_RETURN: () => {
+    let block = [
+      // frame = lcl
+      "@LCL",
+      "D=M",
+      "@FRAME",
+      "M=D",
+      // return address = *(frame -5)
+      "@5",
+      "D=A",
+      "@FRAME",
+      "D=M-D",
+      "@RET",
+      "M=D",
+      // pop top of arg
+      ...Macros.getTop,
+      "@ARG",
+      "A=M",
+      "M=D",
+      // restore SP
+      "@ARG",
+      "D=M",
+      "@SP",
+      "M=D+1",
+      // restore THAT
+      ...Macros.restore("THAT"),
+      // restore THIS
+      ...Macros.restore("THIS"),
+      // restore ARG
+      ...Macros.restore("ARG"),
+      // restore LCL
+      ...Macros.restore("LCL"),
+    ];
+
+    return block.join("\n");
+  },
 };

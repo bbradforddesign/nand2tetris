@@ -11,8 +11,6 @@ let varCount = 0;
  * comparisons yield true (-1) or false (0)
  */
 module.exports = {
-  varCount: 0,
-
   C_ARITHMETIC: {
     // x + y
     ADD: () => {

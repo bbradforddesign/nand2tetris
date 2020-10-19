@@ -1,4 +1,10 @@
-const { C_LABEL, C_IF, C_GOTO } = require("./ProgramControl");
+const {
+  C_LABEL,
+  C_IF,
+  C_GOTO,
+  C_FUNCTION,
+  C_RETURN,
+} = require("./ProgramControl");
 const { C_ARITHMETIC, C_PUSH, C_POP } = require("./StackArithmetic");
 const { Macros } = require("./General");
 const {
@@ -27,8 +33,8 @@ const CommandType = {
   label: (label) => C_LABEL(label),
   goto: (label) => C_GOTO(label),
   "if-goto": (label) => C_IF(label),
-  C_FUNCTION: "",
-  C_RETURN: "",
+  function: (funcName, varCount) => C_FUNCTION(funcName, varCount),
+  return: () => C_RETURN(),
   C_CALL: "",
 };
 
@@ -54,12 +60,11 @@ const Parse = (fileAddress) => {
         let segment = Split[1];
         // Which address within the given segment? ie word '3' of 'local'
         let value = Split[2];
+        // pass appropriate arguments to functions returning assembly operations
         if (segment || value) {
-          // assume program flow command if just segment supplied
           if (segment && !value) {
             WriteLine(`${CommandType[action](segment)} // ${Cleaned}`);
           } else if (segment && value) {
-            // assume push or pop method if segment and value supplied
             WriteLine(`${CommandType[action](segment, value)} // ${Cleaned}`);
           }
         } else {

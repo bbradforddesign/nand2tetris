@@ -1,0 +1,116 @@
+(_SimpleFunction.test)
+@0
+D=A
+@SP
+M=M+1
+A=M-1
+M=D
+@0
+D=A
+@SP
+M=M+1
+A=M-1
+M=D // function SimpleFunction.test 2
+@0
+D=A
+@LCL
+A=D+M
+D=M
+@SP
+M=M+1
+A=M-1
+M=D // push local 0
+@1
+D=A
+@LCL
+A=D+M
+D=M
+@SP
+M=M+1
+A=M-1
+M=D // push local 1
+@SP
+AM=M-1
+D=M
+@SP
+A=M-1
+M=M+D // add
+@SP
+AM=M-1
+D=M
+M=!D
+@SP
+M=M+1 // not
+@0
+D=A
+@ARG
+A=D+M
+D=M
+@SP
+M=M+1
+A=M-1
+M=D // push argument 0
+@SP
+AM=M-1
+D=M
+@SP
+A=M-1
+M=M+D // add
+@1
+D=A
+@ARG
+A=D+M
+D=M
+@SP
+M=M+1
+A=M-1
+M=D // push argument 1
+@SP
+AM=M-1
+D=M
+@SP
+A=M-1
+M=M-D // sub
+@LCL
+D=M
+@FRAME
+M=D
+@5
+D=A
+@FRAME
+D=M-D
+@RET
+M=D
+@SP
+AM=M-1
+D=M
+@ARG
+A=M
+M=D
+@ARG
+D=M
+@SP
+M=D+1
+@FRAME
+AM=M-1
+D=M
+@THAT
+M=D
+@FRAME
+AM=M-1
+D=M
+@THIS
+M=D
+@FRAME
+AM=M-1
+D=M
+@ARG
+M=D
+@FRAME
+AM=M-1
+D=M
+@LCL
+M=D // return
+(END)
+@END
+0;JMP
