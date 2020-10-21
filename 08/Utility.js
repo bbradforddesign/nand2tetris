@@ -1,5 +1,6 @@
 const fs = require("fs");
 const readline = require("readline");
+const { Macros } = require("./General");
 
 /**
  * Utility
@@ -7,24 +8,40 @@ const readline = require("readline");
 
 // allow user to select file to input/output
 const Arg = process.argv.slice(2);
-const InputFile = Arg[0];
-const OutputFile = InputFile.slice(0, -3) + ".asm";
+// folder containing the VM programs to translate
+const InputDir = Arg[0];
+
+const InputProg = Arg[1];
+
+// name of file to output final assembly code
+const OutputFile = InputDir.split("/").slice(-1) + ".asm";
+// path to find output file
+const OutputPath = InputDir + "/" + OutputFile;
 
 module.exports = {
-  InputFile: InputFile,
+  InputDir: InputDir,
+  InputProg: InputProg,
 
-  OpenFile: (file) => {
-    const fileStream = fs.createReadStream(file);
+  OpenSys: (dir) => {
+    const Sys = fs.createReadStream(dir + "/Sys.vm");
     return readline.createInterface({
-      input: fileStream,
+      input: Sys,
+      crlfDelay: Infinity,
+    });
+  },
+
+  OpenMain: (dir, fileName) => {
+    const Main = fs.createReadStream(dir + "/" + fileName);
+    return readline.createInterface({
+      input: Main,
       crlfDelay: Infinity,
     });
   },
 
   ResetOutput: () => {
-    if (fs.existsSync(OutputFile)) {
+    if (fs.existsSync(OutputPath)) {
       console.log("Output file already exists. Overwriting.");
-      fs.truncate(OutputFile, 0, (err) => {
+      fs.truncateSync(OutputPath, 0, (err) => {
         if (err) return console.log(err);
       });
     }
@@ -38,7 +55,7 @@ module.exports = {
   },
 
   WriteLine: (line) => {
-    fs.appendFileSync(OutputFile, line + "\n", (err) => {
+    fs.appendFileSync(OutputPath, line + "\n", (err) => {
       if (err) return console.log(err);
     });
   },

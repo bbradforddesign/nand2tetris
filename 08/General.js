@@ -21,7 +21,7 @@ module.exports = {
     putTop: ["@SP", "M=M+1", "A=M-1", "M=D"],
     gotoTop: ["@SP", "A=M-1"],
     restore: (pointer) => {
-      return ["@FRAME", "AM=M-1", "D=M", `@${pointer}`, "M=D"];
+      return ["@R14", "AM=M-1", "D=M", `@${pointer}`, "M=D"];
     },
     terminate: ["(END)", "@END", "0;JMP"],
     compare: (comparison, iterator) => {
