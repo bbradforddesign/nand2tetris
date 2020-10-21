@@ -17,10 +17,10 @@ module.exports = {
   // creates branch to determine whether a jump should occur
   C_IF: (label) => {
     let block = [
-      // if counter (should be on top of stack) > 0, jump to label
+      // if counter (should be on top of stack) !== 0, jump to label
       ...Macros.getTop,
       `@_${label}`,
-      "D;JGT",
+      "D;JNE",
     ];
 
     return block.join("\n");

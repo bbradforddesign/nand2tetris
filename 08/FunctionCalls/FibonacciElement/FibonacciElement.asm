@@ -1,7 +1,52 @@
-@261
+@256
 D=A
 @SP
 M=D
+@RET_1
+D=A
+@SP
+M=M+1
+A=M-1
+M=D
+@LCL
+D=M
+@SP
+M=M+1
+A=M-1
+M=D
+@ARG
+D=M
+@SP
+M=M+1
+A=M-1
+M=D
+@THIS
+D=M
+@SP
+M=M+1
+A=M-1
+M=D
+@THAT
+D=M
+@SP
+M=M+1
+A=M-1
+M=D
+@5
+D=A
+@SP
+D=M-D
+@0
+D=D-A
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@_Sys.init
+0;JMP
+(RET_1)
 (_Sys.init) // function Sys.init 0
 @4
 D=A
@@ -9,8 +54,8 @@ D=A
 M=M+1
 A=M-1
 M=D // push constant 4
-@RET
-D=M
+@RET_2
+D=A
 @SP
 M=M+1
 A=M-1
@@ -53,7 +98,7 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_Main.fibonacci) // call Main.fibonacci 1   
+(RET_2) // call Main.fibonacci 1   
 (_WHILE) // label WHILE
 @_WHILE
 0;JMP // goto WHILE              
@@ -98,7 +143,7 @@ M=D // lt
 AM=M-1
 D=M
 @_IF_TRUE
-D;JGT // if-goto IF_TRUE
+D;JNE // if-goto IF_TRUE
 @_IF_FALSE
 0;JMP // goto IF_FALSE
 (_IF_TRUE) // label IF_TRUE          
@@ -113,13 +158,15 @@ A=M-1
 M=D // push argument 0        
 @LCL
 D=M
-@FRAME
+@R14
 M=D
 @5
 D=A
-@FRAME
+@R14
 D=M-D
-@RET
+A=D
+D=M
+@R15
 M=D
 @SP
 AM=M-1
@@ -128,30 +175,31 @@ D=M
 A=M
 M=D
 @ARG
-D=M
+D=M+1
 @SP
-M=D+1
-@FRAME
+M=D
+@R14
 AM=M-1
 D=M
 @THAT
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @THIS
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @ARG
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @LCL
 M=D
-@RET
+@R15
+A=M
 0;JMP // return
 (_IF_FALSE) // label IF_FALSE         
 @0
@@ -175,8 +223,8 @@ D=M
 @SP
 A=M-1
 M=M-D // sub
-@RET
-D=M
+@RET_3
+D=A
 @SP
 M=M+1
 A=M-1
@@ -219,7 +267,7 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_Main.fibonacci) // call Main.fibonacci 1  
+(RET_3) // call Main.fibonacci 1  
 @0
 D=A
 @ARG
@@ -241,8 +289,8 @@ D=M
 @SP
 A=M-1
 M=M-D // sub
-@RET
-D=M
+@RET_4
+D=A
 @SP
 M=M+1
 A=M-1
@@ -285,7 +333,7 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_Main.fibonacci) // call Main.fibonacci 1  
+(RET_4) // call Main.fibonacci 1  
 @SP
 AM=M-1
 D=M
@@ -294,13 +342,15 @@ A=M-1
 M=M+D // add                    
 @LCL
 D=M
-@FRAME
+@R14
 M=D
 @5
 D=A
-@FRAME
+@R14
 D=M-D
-@RET
+A=D
+D=M
+@R15
 M=D
 @SP
 AM=M-1
@@ -309,30 +359,31 @@ D=M
 A=M
 M=D
 @ARG
-D=M
+D=M+1
 @SP
-M=D+1
-@FRAME
+M=D
+@R14
 AM=M-1
 D=M
 @THAT
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @THIS
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @ARG
 M=D
-@FRAME
+@R14
 AM=M-1
 D=M
 @LCL
 M=D
-@RET
+@R15
+A=M
 0;JMP // return
 (END)
 @END
