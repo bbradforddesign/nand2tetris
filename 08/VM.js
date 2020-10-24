@@ -9,21 +9,26 @@ const {
 const { C_ARITHMETIC, C_PUSH, C_POP } = require("./StackArithmetic");
 const { Macros } = require("./General");
 const {
-  OpenMain,
+  OpenClass,
   OpenSys,
+  GetFiles,
   InputDir,
-  InputProg,
   ResetOutput,
   CleanLine,
   WriteLine,
 } = require("./Utility");
 
+/**
+ * Main program.
+ * Translates VM bytecode into corresponding assembly operations to run on the Hack platform.
+ */
+
 // table of keywords invoking assembly operations
 const CommandType = {
   // stack operations
   add: () => C_ARITHMETIC.ADD(),
-  push: (segment, num) => C_PUSH(segment, num),
-  pop: (segment, num) => C_POP(segment, num),
+  push: (segment, num, funcName) => C_PUSH(segment, num, funcName),
+  pop: (segment, num, funcName) => C_POP(segment, num, funcName),
   eq: () => C_ARITHMETIC.EQ(),
   lt: () => C_ARITHMETIC.LT(),
   gt: () => C_ARITHMETIC.GT(),
@@ -46,7 +51,7 @@ const Bootstrap = () => {
   WriteLine(CommandType["call"]("Sys.init", 0));
 };
 
-const Translate = (line) => {
+const Translate = (line, funcName) => {
   const Cleaned = CleanLine(line);
   const NoSpace = Cleaned.trim();
   const Split = NoSpace.split(/[ ]+/);
@@ -55,6 +60,7 @@ const Translate = (line) => {
   let action = Split[0];
 
   if (action) {
+    WriteLine(Macros.debug(NoSpace));
     // write translated assembly operation, notating each with the supplied VM command
     if (CommandType[action]) {
       // Which memory segment? 'constant', 'local', 'static', etc.
@@ -64,13 +70,19 @@ const Translate = (line) => {
       // pass appropriate arguments to functions returning assembly operations
       if (segment || value) {
         if (segment && !value) {
-          WriteLine(`${CommandType[action](segment)} // ${Cleaned}`);
+          WriteLine(`${CommandType[action](segment)}`);
         } else if (segment && value) {
-          WriteLine(`${CommandType[action](segment, value)} // ${Cleaned}`);
+          if (segment === "static") {
+            WriteLine(
+              `${CommandType[action](segment, value, funcName.split(".")[0])}`
+            );
+          } else {
+            WriteLine(`${CommandType[action](segment, value)}`);
+          }
         }
       } else {
         // all others just need the stack, so no segment or value needed
-        WriteLine(`${CommandType[action]()} // ${Cleaned}`);
+        WriteLine(`${CommandType[action]()}`);
       }
     } else {
       console.log(`Warning: ${action} not implemented.`);
@@ -78,34 +90,34 @@ const Translate = (line) => {
   }
 };
 
+const Close = () => {
+  WriteLine("\n//closing loop\n" + Macros.terminate.join("\n"));
+  console.log("Done!");
+};
+
 // parse input file line by line, checking for keywords to translate
 const Parse = (dir) => {
-  // open init file
+  const files = GetFiles(dir);
+  // open init file. called separately to ensure it's translated first
   const Init = OpenSys(dir);
+  const Classes = files.filter((e) => e.toLowerCase() !== "sys.vm");
 
-  Init.on("line", (line) => {
-    Translate(line);
+  Init.forEach((line) => {
+    Translate(line, "Init");
   });
+
   // open main file
+  for (let i = 0; i < Classes.length; i++) {
+    const Program = OpenClass(dir, Classes[i]);
 
-  if (InputProg) {
-    const Program = OpenMain(dir, InputProg);
-
-    Program.on("line", (line) => {
-      Translate(line);
+    Program.forEach((line) => {
+      Translate(line, Classes[i]);
     });
 
-    // afterwards, perform callback:
-    Program.on("close", () => {
-      WriteLine(Macros.terminate.join("\n"));
-      console.log("done");
-    });
-  } else {
-    Init.on("close", () => {
-      WriteLine(Macros.terminate.join("\n"));
-      console.log("done");
-    });
+    console.log(`${Classes[i]} translated.`);
   }
+
+  Close();
 };
 
 const Main = () => {

@@ -1,9 +1,9 @@
 const fs = require("fs");
-const readline = require("readline");
-const { Macros } = require("./General");
+const path = require("path");
 
 /**
- * Utility
+ * Utility functions.
+ * Allow our main program to access the input files, and modify the output file.
  */
 
 // allow user to select file to input/output
@@ -12,6 +12,13 @@ const Arg = process.argv.slice(2);
 const InputDir = Arg[0];
 
 const InputProg = Arg[1];
+
+/**
+ * search directory for files with extension
+ * var targetFiles = files.filter(function(file) {
+    return path.extname(file).toLowerCase() === EXTENSION;
+}); 
+ */
 
 // name of file to output final assembly code
 const OutputFile = InputDir.split("/").slice(-1) + ".asm";
@@ -22,20 +29,21 @@ module.exports = {
   InputDir: InputDir,
   InputProg: InputProg,
 
-  OpenSys: (dir) => {
-    const Sys = fs.createReadStream(dir + "/Sys.vm");
-    return readline.createInterface({
-      input: Sys,
-      crlfDelay: Infinity,
-    });
+  GetFiles: (dir) => {
+    // note: Should call filter as callback in readdir?
+    // when done that way, returns undefined. async?
+    const list = fs.readdirSync(dir);
+    return list.filter((e) => path.extname(e) === ".vm");
   },
 
-  OpenMain: (dir, fileName) => {
-    const Main = fs.createReadStream(dir + "/" + fileName);
-    return readline.createInterface({
-      input: Main,
-      crlfDelay: Infinity,
-    });
+  OpenSys: (dir) => {
+    const Sys = fs.readFileSync(dir + "/Sys.vm", "utf-8");
+    return Sys.split("\n").filter(Boolean);
+  },
+
+  OpenClass: (dir, fileName) => {
+    const Class = fs.readFileSync(dir + "/" + fileName, "utf-8");
+    return Class.split("\n").filter(Boolean);
   },
 
   ResetOutput: () => {

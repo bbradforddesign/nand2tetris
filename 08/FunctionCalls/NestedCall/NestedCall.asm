@@ -47,29 +47,47 @@ M=D
 @_Sys.init
 0;JMP
 (RET_1)
+@77777
+M=0
+M=1
 (_Sys.init) // function Sys.init 0
+@77777
+M=0
+M=1
 @4000
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 4000	
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @3
 M=D // pop pointer 0
+@77777
+M=0
+M=1
 @5000
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 5000
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @4
 M=D // pop pointer 1
+@77777
+M=0
+M=1
 @RET_2
 D=A
 @SP
@@ -115,14 +133,26 @@ M=D
 @_Sys.main
 0;JMP
 (RET_2) // call Sys.main 0
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @6
 M=D // pop temp 1
+@77777
+M=0
+M=1
 (_LOOP) // label LOOP
+@77777
+M=0
+M=1
 @_LOOP
 0;JMP // goto LOOP
+@77777
+M=0
+M=1
 (_Sys.main)
 @0
 D=A
@@ -154,34 +184,52 @@ D=A
 M=M+1
 A=M-1
 M=D // function Sys.main 5
+@77777
+M=0
+M=1
 @4001
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 4001
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @3
 M=D // pop pointer 0
+@77777
+M=0
+M=1
 @5001
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 5001
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @4
 M=D // pop pointer 1
+@77777
+M=0
+M=1
 @200
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 200
+@77777
+M=0
+M=1
 @1
 D=A
 @LCL
@@ -194,12 +242,18 @@ D=M
 @13
 A=M
 M=D // pop local 1
+@77777
+M=0
+M=1
 @40
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 40
+@77777
+M=0
+M=1
 @2
 D=A
 @LCL
@@ -212,12 +266,18 @@ D=M
 @13
 A=M
 M=D // pop local 2
+@77777
+M=0
+M=1
 @6
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 6
+@77777
+M=0
+M=1
 @3
 D=A
 @LCL
@@ -230,12 +290,18 @@ D=M
 @13
 A=M
 M=D // pop local 3
+@77777
+M=0
+M=1
 @123
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 123
+@77777
+M=0
+M=1
 @RET_3
 D=A
 @SP
@@ -281,11 +347,17 @@ M=D
 @_Sys.add12
 0;JMP
 (RET_3) // call Sys.add12 1
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @5
 M=D // pop temp 0
+@77777
+M=0
+M=1
 @0
 D=A
 @LCL
@@ -295,6 +367,9 @@ D=M
 M=M+1
 A=M-1
 M=D // push local 0
+@77777
+M=0
+M=1
 @1
 D=A
 @LCL
@@ -304,6 +379,9 @@ D=M
 M=M+1
 A=M-1
 M=D // push local 1
+@77777
+M=0
+M=1
 @2
 D=A
 @LCL
@@ -313,6 +391,9 @@ D=M
 M=M+1
 A=M-1
 M=D // push local 2
+@77777
+M=0
+M=1
 @3
 D=A
 @LCL
@@ -322,6 +403,9 @@ D=M
 M=M+1
 A=M-1
 M=D // push local 3
+@77777
+M=0
+M=1
 @4
 D=A
 @LCL
@@ -331,30 +415,45 @@ D=M
 M=M+1
 A=M-1
 M=D // push local 4
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add
+@77777
+M=0
+M=1
 @LCL
 D=M
 @R14
@@ -400,29 +499,47 @@ M=D
 @R15
 A=M
 0;JMP // return
+@77777
+M=0
+M=1
 (_Sys.add12) // function Sys.add12 0
+@77777
+M=0
+M=1
 @4002
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 4002
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @3
 M=D // pop pointer 0
+@77777
+M=0
+M=1
 @5002
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 5002
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @4
 M=D // pop pointer 1
+@77777
+M=0
+M=1
 @0
 D=A
 @ARG
@@ -432,18 +549,27 @@ D=M
 M=M+1
 A=M-1
 M=D // push argument 0
+@77777
+M=0
+M=1
 @12
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 12
+@77777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add
+@77777
+M=0
+M=1
 @LCL
 D=M
 @R14
@@ -489,6 +615,3 @@ M=D
 @R15
 A=M
 0;JMP // return
-(END)
-@END
-0;JMP

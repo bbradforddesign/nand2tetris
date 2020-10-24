@@ -3,7 +3,7 @@
  */
 module.exports = {
   // pointers to bases of memory segments.
-  // NOTE: pointers with strings are initialized at runtime. pointers with number addresses are predefined.
+  // NOTE: pointers with strings are built-in on the Hack platform, and require no definition on our end.
   Segments: {
     sp: "SP",
     local: "LCL",
@@ -12,7 +12,7 @@ module.exports = {
     that: "THAT",
     temp: 5,
     pointer: 3,
-    static: 16,
+    static: "STATIC",
   },
 
   // assembly code presets for readability
@@ -20,8 +20,11 @@ module.exports = {
     getTop: ["@SP", "AM=M-1", "D=M"],
     putTop: ["@SP", "M=M+1", "A=M-1", "M=D"],
     gotoTop: ["@SP", "A=M-1"],
+    debug: (actionName) => {
+      return `\n//${actionName}`;
+    },
     restore: (pointer) => {
-      return ["@R14", "AM=M-1", "D=M", `@${pointer}`, "M=D"];
+      return ["@R14", "MD=M-1", "A=D", "D=M", `@${pointer}`, "M=D"];
     },
     terminate: ["(END)", "@END", "0;JMP"],
     compare: (comparison, iterator) => {

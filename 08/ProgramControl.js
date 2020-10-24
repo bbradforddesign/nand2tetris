@@ -2,7 +2,7 @@ const { Macros } = require("./General");
 
 /**
  * Program flow functions
- * handle branching logic
+ * handle branching logic, including comparisons, functions and function calling.
  */
 
 let unique = 0;
@@ -48,10 +48,9 @@ module.exports = {
 
   // call a function
   C_CALL: (funcName, varCount) => {
-    unique++;
     let block = [
       // push return-address
-      `@RET_${unique}`,
+      `@_${funcName}Return${unique}`,
       "D=A",
       ...Macros.putTop,
       // push LCL
@@ -88,8 +87,10 @@ module.exports = {
       `@_${funcName}`,
       "0;JMP",
       // (return-address)
-      `(RET_${unique})`,
+      `(_${funcName}Return${unique})`,
     ];
+
+    unique++;
     return block.join("\n");
   },
 
@@ -108,14 +109,12 @@ module.exports = {
       "D=M-D",
       "A=D",
       "D=M",
-      // note: MUST STORE RESULT IN R15
       "@R15",
       "M=D",
-      // pop top of arg
+      // reposition top of stack to location pointed by arg
       ...Macros.getTop,
       "@ARG",
       "A=M",
-      // note: MUST STORE POPPED VALUE AT ADDRESS REFD BY ARG
       "M=D",
       // SP = ARG + 1
       "@ARG",

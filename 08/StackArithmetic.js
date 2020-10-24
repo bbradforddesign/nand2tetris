@@ -94,7 +94,7 @@ module.exports = {
   },
 
   // store element at top of stack
-  C_PUSH: (seg, num) => {
+  C_PUSH: (seg, num, funcName) => {
     let block = [];
     let source = Segments[seg];
     if (source) {
@@ -104,6 +104,8 @@ module.exports = {
           `@${source + parseInt(num)}`,
           "D=M"
         );
+      } else if (source === "STATIC") {
+        block.push(`@_${funcName}.${num}`, "D=M");
       } else {
         block.push(
           // get val to push from source at line
@@ -131,7 +133,7 @@ module.exports = {
   },
 
   // remove & return top element from stack
-  C_POP: (seg, num) => {
+  C_POP: (seg, num, funcName) => {
     let block = [];
     let dest = Segments[seg];
     if (typeof dest === "number") {
@@ -142,6 +144,8 @@ module.exports = {
         `@${dest + parseInt(num)}`,
         "M=D"
       );
+    } else if (dest === "STATIC") {
+      block.push(...Macros.getTop, `@_${funcName}.${num}`, "M=D");
     } else {
       block.push(
         // get destination value and store for later access

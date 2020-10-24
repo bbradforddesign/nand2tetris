@@ -2,7 +2,7 @@
 D=A
 @SP
 M=D
-@RET_1
+@_Sys.initReturn0
 D=A
 @SP
 M=M+1
@@ -46,15 +46,24 @@ D=M
 M=D
 @_Sys.init
 0;JMP
-(RET_1)
+(_Sys.initReturn0)
+@7777
+M=0
+M=1
 (_Sys.init) // function Sys.init 0
+@7777
+M=0
+M=1
 @4
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 4
-@RET_2
+@7777
+M=0
+M=1
+@_Main.fibonacciReturn1
 D=A
 @SP
 M=M+1
@@ -98,11 +107,23 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_2) // call Main.fibonacci 1   
+(_Main.fibonacciReturn1) // call Main.fibonacci 1   
+@7777
+M=0
+M=1
 (_WHILE) // label WHILE
+@7777
+M=0
+M=1
 @_WHILE
 0;JMP // goto WHILE              
+@7777
+M=0
+M=1
 (_Main.fibonacci) // function Main.fibonacci 0
+@7777
+M=0
+M=1
 @0
 D=A
 @ARG
@@ -112,12 +133,18 @@ D=M
 M=M+1
 A=M-1
 M=D // push argument 0
+@7777
+M=0
+M=1
 @2
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 2
+@7777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
@@ -139,14 +166,26 @@ D=0
 A=M-1
 
 M=D // lt                     
+@7777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @_IF_TRUE
 D;JNE // if-goto IF_TRUE
+@7777
+M=0
+M=1
 @_IF_FALSE
 0;JMP // goto IF_FALSE
+@7777
+M=0
+M=1
 (_IF_TRUE) // label IF_TRUE          
+@7777
+M=0
+M=1
 @0
 D=A
 @ARG
@@ -156,14 +195,15 @@ D=M
 M=M+1
 A=M-1
 M=D // push argument 0        
+@7777
+M=0
+M=1
 @LCL
 D=M
 @R14
 M=D
 @5
-D=A
-@R14
-D=M-D
+D=D-A
 A=D
 D=M
 @R15
@@ -179,29 +219,35 @@ D=M+1
 @SP
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @THAT
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @THIS
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @ARG
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @LCL
 M=D
 @R15
 A=M
 0;JMP // return
+@7777
+M=0
+M=1
 (_IF_FALSE) // label IF_FALSE         
+@7777
+M=0
+M=1
 @0
 D=A
 @ARG
@@ -211,19 +257,28 @@ D=M
 M=M+1
 A=M-1
 M=D // push argument 0
+@7777
+M=0
+M=1
 @2
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 2
+@7777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D // sub
-@RET_3
+@7777
+M=0
+M=1
+@_Main.fibonacciReturn2
 D=A
 @SP
 M=M+1
@@ -267,7 +322,10 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_3) // call Main.fibonacci 1  
+(_Main.fibonacciReturn2) // call Main.fibonacci 1  
+@7777
+M=0
+M=1
 @0
 D=A
 @ARG
@@ -277,19 +335,28 @@ D=M
 M=M+1
 A=M-1
 M=D // push argument 0
+@7777
+M=0
+M=1
 @1
 D=A
 @SP
 M=M+1
 A=M-1
 M=D // push constant 1
+@7777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M-D // sub
-@RET_4
+@7777
+M=0
+M=1
+@_Main.fibonacciReturn3
 D=A
 @SP
 M=M+1
@@ -333,21 +400,25 @@ D=M
 M=D
 @_Main.fibonacci
 0;JMP
-(RET_4) // call Main.fibonacci 1  
+(_Main.fibonacciReturn3) // call Main.fibonacci 1  
+@7777
+M=0
+M=1
 @SP
 AM=M-1
 D=M
 @SP
 A=M-1
 M=M+D // add                    
+@7777
+M=0
+M=1
 @LCL
 D=M
 @R14
 M=D
 @5
-D=A
-@R14
-D=M-D
+D=D-A
 A=D
 D=M
 @R15
@@ -363,22 +434,22 @@ D=M+1
 @SP
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @THAT
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @THIS
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @ARG
 M=D
 @R14
-AM=M-1
+A=M-1
 D=M
 @LCL
 M=D
